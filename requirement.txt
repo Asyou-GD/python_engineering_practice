@@ -1,0 +1,5 @@
+numpy
+pandas
+pycryptodome
+requests
+pymysql

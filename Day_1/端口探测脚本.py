@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 import socket
 import re
 from multiprocessing import pool,Pool
-import threading
+
 
 def multi_process(fun):
     # 创建进程池
@@ -18,7 +18,7 @@ def multi_process(fun):
     # 直到所有子进程（或线程）执行完毕后才继续执行主进程。
     pool.join()
 
-def multi_threadpool(fun, args:list, poolnumber:int = 7):
+def multi_threadpool(fun, args:list, poolnumber:int = 20):
     """
     :param fun: 传入一个函数对象
     :param args: 传入该函数的参数

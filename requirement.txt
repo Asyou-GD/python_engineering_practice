@@ -4,3 +4,4 @@ pycryptodome
 requests
 pymysql
 beautifulsoup4
+lxml

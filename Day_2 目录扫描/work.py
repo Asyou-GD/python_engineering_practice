@@ -1,92 +1,202 @@
+import json
+import threading
 import tkinter
 import queue
 from tkinter import filedialog
-
-def a():
-    import queue
-    import random
-    Q = queue.Queue()
-    for i in range(100):
-        num = random.randint(1000, 10000)
-        # 把数字放入队列中
-        Q.put(num)
-    print(Q.get())
-
-
+import requests
+import socket
+import multiprocessing
+import re
 class Request():
     def __init__(self):
-        pass
+        self.headers={
+            'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0',
+        }
+    def requests(self,methor:str,ip, port):
+        s = socket.socket()
+        s.settimeout(3)
+        r = s.connect_ex((ip, int(port)))
+        if r == 0:
+            return f'ip:{ip}, 端口{port}: 端口开启'
+        else:
+            return f'ip:{ip}, 端口{port}: 端口关闭'
+        s.close()
 
-
+#tkinter 对象不能被直接传递到子进程中，因为它们不能被序列化（pickle）。
+#self._check() 调用方式错误，导致线程函数被提前调用。
 class Window:
     def __init__(self, R: Request):
         """界面初始化"""
         self.R = R
+        # 创建进程通信队列
+        self.file = ''
+        self.result_queue = multiprocessing.Queue()  # 用于与子进程通信的队列
+        self.task_queue = multiprocessing.Queue()  #  #存放urls  进程不可传入queue.Queue()
+
         self.root = tkinter.Tk()
-        self.root.geometry("600x300")
+        self.root.geometry("700x380")
         self.root.title("目录扫描")
 
         self.creatui()
+        self.configure_grid()
         self.root.mainloop()
 
     def creatui(self):
+        """
+        设置 sticky 属性：通过 sticky 来让组件"粘附"到 N/S/E/W 边界（分别代表上、下、右、左）。
+        :return:
+        """
         # 左部分
         # 第一行
-        self.lable1 = tkinter.Label(self.root, text='[请求方法]')
-        self.lable1.grid(row=0, column=0)
+        self.label1 = tkinter.Label(self.root, text='[请求方法]')
+        self.label1.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.v1 = tkinter.StringVar()
         self.v1.set('http')
-        self.radio1 = tkinter.Radiobutton(self.root, variable=self.v1, value='http', text='http').grid(row=0, column=1)
-        self.radio2 = tkinter.Radiobutton(self.root, variable=self.v1, value='https', text='https').grid(row=0,
-                                                                                                         column=2)
+        self.radio1 = tkinter.Radiobutton(self.root, variable=self.v1, value='http', text='http')
+        self.radio1.grid(row=0, column=1, )
+        self.radio2 = tkinter.Radiobutton(self.root, variable=self.v1, value='https', text='https')
+        self.radio2.grid(row=0, column=2, padx=50)
 
         # 第二行
-        self.lable2 = tkinter.Label(self.root, text='[域  名]').grid(row=1, column=0)
-        self.entry1 = tkinter.Entry(self.root, show='*').grid(row=1, column=1, columnspan=2)
+        self.label2 = tkinter.Label(self.root, text='[域  名]')
+        self.label2.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        self.entry1 = tkinter.Entry(self.root)
+        self.entry1.grid(row=1, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
+
         # 第三行
-        self.lable3 = tkinter.Label(self.root, text='[目录字典]').grid(row=2, column=0)
-        self.entry2 = tkinter.Entry(self.root, show='*').grid(row=2, column=1, columnspan=2)
+        self.label3 = tkinter.Label(self.root, text='[目录字典]')
+        self.label3.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        self.entry2 = tkinter.Entry(self.root)
+        self.entry2.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # 右部分
         # 第一行
-        self.lable4 = tkinter.Label(self.root, text='[请求方法]').grid(row=0, column=3)
+        self.label4 = tkinter.Label(self.root, text='[请求方法]')
+        self.label4.grid(row=0, column=3, padx=5, pady=5, sticky="w")
         self.v2 = tkinter.StringVar()
-        self.v2.set('http')
-        self.radio3 = tkinter.Radiobutton(self.root, variable=self.v2, value='http', text='http').grid(row=0, column=4)
-        self.radio4 = tkinter.Radiobutton(self.root, variable=self.v2, value='https', text='https').grid(row=0,
-                                                                                                         column=5)
+        self.v2.set('GET')
+        self.radio3 = tkinter.Radiobutton(self.root, variable=self.v2, value='GET', text='GET')
+        self.radio3.grid(row=0, column=4)
+        self.radio4 = tkinter.Radiobutton(self.root, variable=self.v2, value='POST', text='POST')
+        self.radio4.grid(row=0, column=5, padx=50)
+
         # 第二行
-        self.lable4 = tkinter.Label(self.root, text='[端  口]').grid(row=1, column=3)
-        self.entry3 = tkinter.Entry(self.root, show='*').grid(row=1, column=4, columnspan=2)
+        self.label5 = tkinter.Label(self.root, text='[端  口]')
+        self.label5.grid(row=1, column=3, padx=5, pady=5, sticky="w")
+        self.entry3 = tkinter.Entry(self.root)
+        self.entry3.grid(row=1, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
+
         # 第三行
-        self.button1 = tkinter.Button(self.root, text='浏览', command=self.openfile).grid(row=2, column=3)
-        self.button2 = tkinter.Button(self.root, text='开始扫描', command=self.scan).grid(row=2, column=5)
+        self.button1 = tkinter.Button(self.root, text='浏览', command=self.openfile)
+        self.button1.grid(row=2, column=4, padx=5, pady=5)
+        self.button2 = tkinter.Button(self.root, text='开始扫描', command=self.start_process)
+        self.button2.grid(row=2, column=5, padx=5, pady=5)
 
         # 下半部分
-        self.text1 = tkinter.Text(self.root).grid(row=3, column=0, columnspan=6)
+        self.text1 = tkinter.Text(self.root)
+        self.text1.grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="nsew")
+
+
+    def configure_grid(self):
+        """
+        配置行列权重，使组件自动填充窗口
+        """
+        # 配置行权重
+        self.root.grid_rowconfigure(3, weight=1)  # 第 3 行（文本框行）可拉伸
+
+        # 配置列权重
+        self.root.grid_columnconfigure(1, weight=1)  # 第 1 列（域名输入框所在列）可拉伸
+        self.root.grid_columnconfigure(4, weight=1)  # 第 4 列（端口输入框所在列）可拉伸
 
     def openfile(self):
-        self.file = filedialog.askopenfilenames(
+        """
+        文件打开操作，文件路径写入entry
+        :return:
+        """
+        file = filedialog.askopenfilenames(
             defaultextension = "sd",
             title="选择⽂件",
-            filetype=[('jpg图⽚', '*.jpg *.png')]
+            filetype=[('*.jpg *.png','*.json')]
         )
+        self.entry2.insert(0,file[0])
+        self.file = file[0]
 
-    def scan(self):
-        pass
 
     def init(self):
         """读取队列里的url，放入队列"""
+        with open(self.file, 'r', encoding='utf8') as f:
+            urls = json.load(f)
 
-    def _check(self):
-        """线程函数
-        """
-        pass
+        for url in urls:
+            self.task_queue.put((url['ip'].strip(), url['port'].strip()))
 
-    def start(self):
-        """启动线程"""
-        pass
+    def update_ui(self):
+        """更新UI，读取队列中的扫描结果"""
+        try:
+            while True:
+                result = self.result_queue.get_nowait()  # 非阻塞获取队列内容
+                self.text1.insert(tkinter.INSERT, result)
+                self.text1.see(tkinter.END)  # 滚动到末尾
+        except queue.Empty:
+            self.root.after(100, self.update_ui)
+
+    def start_process(self):
+        if (self.entry1.get()=='' or self.entry3.get()=='') and self.entry2.get()=='':
+            self.text1.insert(tkinter.INSERT,'数据为空，请输入域名端口或者目录字典文件！！！\n')
+            return
+
+        if self.file:
+            self.init()
+        if self.entry1.get()!='':
+            if self.entry3.get():
+                port = self.entry3.get()
+                qujian = [p.strip() for p in re.split(r'[-,]', port, flags=re.S)]
+                if len(qujian) == 2:
+                    left, right = int(qujian[0]), int(qujian[1])
+                    port = [i for i in range(left, right + 1, 1)]
+                    # 多线程 创建参数
+                    [self.task_queue.put((self.entry1.get(), p)) for p in port]
+                else:
+                    port = qujian
+                    # 多线程 创建参数
+                    [self.task_queue.put((self.entry1.get(), p)) for p in port]
+
+
+        process = multiprocessing.Process(target=self.scan_process,
+                                          args=(self.task_queue,
+                                                self.result_queue,
+                                                self.R))
+        process.start()
+
+
+        # 定时更新UI
+        self.update_ui()
+
+    @staticmethod
+    def check(task_queue,result_queue:multiprocessing.Queue,R):
+        """线程任务函数"""
+        #self.text1.insert(tkinter.INSERT,urls)
+        while not task_queue.empty():  # 当队列不为空时继续执行
+            url, port = task_queue.get()
+            res = R.requests('GET',url, port)
+            result_queue.put(res+'\n')
+
+
+
+
+    @staticmethod
+    def scan_process(task_queue, result_queue, R):
+        """子进程中的扫描任务"""
+        threads_pool = []
+        for i in range(10):
+            t = threading.Thread(target=Window.check,args=(task_queue, result_queue, R))  # 指定 worker 函数为线程的任务
+            t.start()  # 启动线程
+            threads_pool.append(t)  # 将线程添加到线程列表中
+        for t in threads_pool:
+            t.join()
+        # 扫描完成标志
+        result_queue.put("扫描完成！\n")
 
 
 # 界面
@@ -95,5 +205,7 @@ class Window:
 # 线程任务函数
 # 文件处理函数
 # 初始化操作，字典里的url目录放入队列中
-R = Request()
-win = Window(R)
+if __name__ == "__main__":
+
+    R = Request()
+    win = Window(R)

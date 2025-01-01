@@ -7,11 +7,15 @@ import requests
 import socket
 import multiprocessing
 import re
+import tkinter as tk
+from tkinter import ttk  # 添加 ttk 导入
+
 class Request():
     def __init__(self):
         self.headers={
             'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0',
         }
+        
     def requests(self,methor:str,ip, port):
         s = socket.socket()
         s.settimeout(3)
@@ -90,12 +94,49 @@ class Window:
         self.entry3.grid(row=1, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # 第三行
-        self.button1 = tkinter.Button(self.root, text='浏览', command=self.openfile)
+        style = ttk.Style()
+        style.configure('Primary.TButton', 
+                       background='blue', 
+                       foreground='black',
+                       padding=5)
+        style.configure('Secondary.TButton', 
+                       background='#6c757d',
+                       foreground='black',
+                       padding=5)
+        style.configure('Danger.TButton',
+                       background='#dc3545',
+                       foreground='black', 
+                       padding=5)
+
+        self.button1 = tkinter.Button(self.root, 
+                                    text='浏览',
+                                    bg='#BA55D3',  # 背景色
+                                    fg='white',    # 文字颜色
+                                    relief='flat', # 扁平化效果
+                                    padx=10,
+                                    pady=5,
+                                    command=self.openfile)
         self.button1.grid(row=2, column=3, padx=5, pady=5)
-        self.button2 = tkinter.Button(self.root, text='开始扫描', command=self.start_process)
-        self.button2.grid(row=2, column=4, padx=50,  pady=5)
-        self.button3 = tkinter.Button(self.root, text='清除', command=self.delete)
-        self.button3.grid(row=2, column=5,  pady=5)
+        
+        self.button2 = tkinter.Button(self.root, 
+                                    text='开始扫描',
+                                    bg='#007bff',
+                                    fg='white',
+                                    relief='flat',
+                                    padx=10,
+                                    pady=5,
+                                    command=self.start_process)
+        self.button2.grid(row=2, column=4, padx=50, pady=5)
+        
+        self.button3 = tkinter.Button(self.root, 
+                                    text='清除',
+                                    bg='#dc3545',
+                                    fg='white',
+                                    relief='flat',
+                                    padx=10,
+                                    pady=5,
+                                    command=self.delete)
+        self.button3.grid(row=2, column=5, pady=5)
         # 下半部分
         self.text1 = tkinter.Text(self.root)
         self.text1.grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="nsew")

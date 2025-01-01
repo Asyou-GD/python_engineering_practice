@@ -1,2 +1,2 @@
-import re
-print(re.split(r'[-]','55'))
+import requests
+print("大撒大撒")

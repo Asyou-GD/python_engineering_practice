@@ -1,14 +1,11 @@
 import json
 import threading
-import tkinter
-import queue
-from tkinter import filedialog
-import requests
+import tkinter as tk
+from tkinter import filedialog, ttk
 import socket
 import multiprocessing
 import re
-import tkinter as tk
-from tkinter import ttk  # 添加 ttk 导入
+import queue
 
 class Request():
     def __init__(self):
@@ -26,7 +23,7 @@ class Request():
             return f'ip:{ip}, 端口{port}: 端口关闭'
         s.close()
 
-#tkinter 对象不能被直接传递到子进程中，因为它们不能被序列化（pickle）。
+#tk 对象不能被直接传递到子进程中，因为它们不能被序列化（pickle）。
 #self._check() 调用方式错误，导致线程函数被提前调用。
 class Window:
     def __init__(self, R: Request):
@@ -37,7 +34,7 @@ class Window:
         self.result_queue = multiprocessing.Queue()  # 用于与子进程通信的队列
         self.task_queue = multiprocessing.Queue()  #  #存放urls  进程不可传入queue.Queue()
 
-        self.root = tkinter.Tk()
+        self.root = tk.Tk()
         self.root.geometry("700x500")
         self.root.title("目录扫描")
 
@@ -54,43 +51,43 @@ class Window:
         """
         # 左部分
         # 第一行
-        self.label1 = tkinter.Label(self.root, text='[请求方法]')
+        self.label1 = tk.Label(self.root, text='[请求方法]')
         self.label1.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        self.v1 = tkinter.StringVar()
+        self.v1 = tk.StringVar()
         self.v1.set('http')
-        self.radio1 = tkinter.Radiobutton(self.root, variable=self.v1, value='http', text='http')
+        self.radio1 = tk.Radiobutton(self.root, variable=self.v1, value='http', text='http')
         self.radio1.grid(row=0, column=1, )
-        self.radio2 = tkinter.Radiobutton(self.root, variable=self.v1, value='https', text='https')
+        self.radio2 = tk.Radiobutton(self.root, variable=self.v1, value='https', text='https')
         self.radio2.grid(row=0, column=2, padx=50)
 
         # 第二行
-        self.label2 = tkinter.Label(self.root, text='[域  名]')
+        self.label2 = tk.Label(self.root, text='[域  名]')
         self.label2.grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        self.entry1 = tkinter.Entry(self.root)
+        self.entry1 = tk.Entry(self.root)
         self.entry1.grid(row=1, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # 第三行
-        self.label3 = tkinter.Label(self.root, text='[目录字典]')
+        self.label3 = tk.Label(self.root, text='[目录字典]')
         self.label3.grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        self.entry2 = tkinter.Entry(self.root)
+        self.entry2 = tk.Entry(self.root)
         self.entry2.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # 右部分
         # 第一行
-        self.label4 = tkinter.Label(self.root, text='[请求方法]')
+        self.label4 = tk.Label(self.root, text='[请求方法]')
         self.label4.grid(row=0, column=3, padx=5, pady=5, sticky="w")
-        self.v2 = tkinter.StringVar()
+        self.v2 = tk.StringVar()
         self.v2.set('GET')
-        self.radio3 = tkinter.Radiobutton(self.root, variable=self.v2, value='GET', text='GET')
+        self.radio3 = tk.Radiobutton(self.root, variable=self.v2, value='GET', text='GET')
         self.radio3.grid(row=0, column=4)
-        self.radio4 = tkinter.Radiobutton(self.root, variable=self.v2, value='POST', text='POST')
+        self.radio4 = tk.Radiobutton(self.root, variable=self.v2, value='POST', text='POST')
         self.radio4.grid(row=0, column=5, padx=50)
 
         # 第二行
-        self.label5 = tkinter.Label(self.root, text='[端  口]')
+        self.label5 = tk.Label(self.root, text='[端  口]')
         self.label5.grid(row=1, column=3, padx=5, pady=5, sticky="w")
-        self.entry3 = tkinter.Entry(self.root)
+        self.entry3 = tk.Entry(self.root)
         self.entry3.grid(row=1, column=4, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # 第三行
@@ -108,7 +105,7 @@ class Window:
                        foreground='black', 
                        padding=5)
 
-        self.button1 = tkinter.Button(self.root, 
+        self.button1 = tk.Button(self.root, 
                                     text='浏览',
                                     bg='#BA55D3',  # 背景色
                                     fg='white',    # 文字颜色
@@ -118,7 +115,7 @@ class Window:
                                     command=self.openfile)
         self.button1.grid(row=2, column=3, padx=5, pady=5)
         
-        self.button2 = tkinter.Button(self.root, 
+        self.button2 = tk.Button(self.root, 
                                     text='开始扫描',
                                     bg='#007bff',
                                     fg='white',
@@ -128,7 +125,7 @@ class Window:
                                     command=self.start_process)
         self.button2.grid(row=2, column=4, padx=50, pady=5)
         
-        self.button3 = tkinter.Button(self.root, 
+        self.button3 = tk.Button(self.root, 
                                     text='清除',
                                     bg='#dc3545',
                                     fg='white',
@@ -138,7 +135,7 @@ class Window:
                                     command=self.delete)
         self.button3.grid(row=2, column=5, pady=5)
         # 下半部分
-        self.text1 = tkinter.Text(self.root)
+        self.text1 = tk.Text(self.root)
         self.text1.grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="nsew")
 
     def configure_grid(self):
@@ -175,8 +172,8 @@ Port数据格式
 ]                        
 """
                 self.help=True
-                self.text1.insert(tkinter.INSERT, help)
-            self.text1.see(tkinter.END)  # 滚动到底部
+                self.text1.insert(tk.INSERT, help)
+            self.text1.see(tk.END)  # 滚动到底部
         except Exception as e:
             print(e)
         finally:
@@ -184,7 +181,7 @@ Port数据格式
             self.root.after(100, self.listen_to_data)
 
     def delete(self):
-        self.text1.delete(1.0, tkinter.END)
+        self.text1.delete(1.0, tk.END)
         self.help=False
 
     def openfile(self):
@@ -214,19 +211,19 @@ Port数据格式
         try:
             while True:
                 result = self.result_queue.get_nowait()  # 非阻塞获取队列内容
-                self.text1.insert(tkinter.INSERT, result)
-                self.text1.see(tkinter.END)  # 滚动到末尾
+                self.text1.insert(tk.INSERT, result)
+                self.text1.see(tk.END)  # 滚动到末尾
         except queue.Empty:
             self.root.after(100, self.update_ui)
 
     def start_process(self):
-        self.text1.delete(1.0, tkinter.END)
+        self.text1.delete(1.0, tk.END)
         #1.0：表示从第一行的第一个字符开始。
         #iINSERT 当前位置
         #END  末尾
         self.help = False
         if (self.entry1.get()=='' or self.entry3.get()=='') and self.entry2.get()=='':
-            self.text1.insert(tkinter.INSERT,'数据为空，请输入域名端口或者目录字典文件！！！\n')
+            self.text1.insert(tk.INSERT,'数据为空，请输入域名端口或者目录字典文件！！！\n')
             return
 
         if self.file:
@@ -259,7 +256,7 @@ Port数据格式
     @staticmethod
     def check(task_queue,result_queue:multiprocessing.Queue,R):
         """线程任务函数"""
-        #self.text1.insert(tkinter.INSERT,urls)
+        #self.text1.insert(tk.INSERT,urls)
         while not task_queue.empty():  # 当队列不为空时继续执行
             url, port = task_queue.get()
             res = R.requests('GET',url, port)
@@ -286,6 +283,9 @@ Port数据格式
 # 文件处理函数
 # 初始化操作，字典里的url目录放入队列中
 if __name__ == "__main__":
-
+    # 在 Python 程序打包成 exe 时，经常会遇到多进程相关的问题。
+    # 主要原因是 multiprocessing 在 Windows 下的 "freeze support" 问题。
+    # 添加这一行，可以解决这个问题。
+    multiprocessing.freeze_support()  # 添加这一行
     R = Request()
     win = Window(R)

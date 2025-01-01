@@ -34,11 +34,13 @@ class Window:
         self.task_queue = multiprocessing.Queue()  #  #存放urls  进程不可传入queue.Queue()
 
         self.root = tkinter.Tk()
-        self.root.geometry("700x380")
+        self.root.geometry("700x500")
         self.root.title("目录扫描")
 
         self.creatui()
         self.configure_grid()
+        self.listen_to_data()
+        self.help=False
         self.root.mainloop()
 
     def creatui(self):
@@ -89,14 +91,14 @@ class Window:
 
         # 第三行
         self.button1 = tkinter.Button(self.root, text='浏览', command=self.openfile)
-        self.button1.grid(row=2, column=4, padx=5, pady=5)
+        self.button1.grid(row=2, column=3, padx=5, pady=5)
         self.button2 = tkinter.Button(self.root, text='开始扫描', command=self.start_process)
-        self.button2.grid(row=2, column=5, padx=5, pady=5)
-
+        self.button2.grid(row=2, column=4, padx=50,  pady=5)
+        self.button3 = tkinter.Button(self.root, text='清除', command=self.delete)
+        self.button3.grid(row=2, column=5,  pady=5)
         # 下半部分
         self.text1 = tkinter.Text(self.root)
         self.text1.grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="nsew")
-
 
     def configure_grid(self):
         """
@@ -108,6 +110,41 @@ class Window:
         # 配置列权重
         self.root.grid_columnconfigure(1, weight=1)  # 第 1 列（域名输入框所在列）可拉伸
         self.root.grid_columnconfigure(4, weight=1)  # 第 4 列（端口输入框所在列）可拉伸
+
+    def listen_to_data(self):
+        """
+        监听数据
+        :return:
+        """
+        try:
+            result = self.entry3.get()
+            if (result or self.file) and not self.help:
+                help = """
+Port数据格式
+    1. 110-225 范围
+    2. 110,55,99,88 逗号隔开
+    3. 55 单个
+
+*********json文件的数据应该形式如是**********
+[
+    {
+        "ip":"127.0.0.1",
+        "port":"3306"
+    }
+]                        
+"""
+                self.help=True
+                self.text1.insert(tkinter.INSERT, help)
+            self.text1.see(tkinter.END)  # 滚动到底部
+        except Exception as e:
+            print(e)
+        finally:
+            # 每隔 100 毫秒再次调用自己
+            self.root.after(100, self.listen_to_data)
+
+    def delete(self):
+        self.text1.delete(1.0, tkinter.END)
+        self.help=False
 
     def openfile(self):
         """
@@ -142,6 +179,11 @@ class Window:
             self.root.after(100, self.update_ui)
 
     def start_process(self):
+        self.text1.delete(1.0, tkinter.END)
+        #1.0：表示从第一行的第一个字符开始。
+        #iINSERT 当前位置
+        #END  末尾
+        self.help = False
         if (self.entry1.get()=='' or self.entry3.get()=='') and self.entry2.get()=='':
             self.text1.insert(tkinter.INSERT,'数据为空，请输入域名端口或者目录字典文件！！！\n')
             return
@@ -181,9 +223,6 @@ class Window:
             url, port = task_queue.get()
             res = R.requests('GET',url, port)
             result_queue.put(res+'\n')
-
-
-
 
     @staticmethod
     def scan_process(task_queue, result_queue, R):

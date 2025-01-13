@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ip列表</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-box">
+        <ul class="nav">
+          <li class="nav-item">
+            <a href="{{ url_for('iplist')}}" class="nav-link" aria-current="page"
+              >ip列表</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('open_detection')}}" class="nav-link active"
+              >开启所有检测</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('single')}}" class="nav-link">单个脚本检测记录</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('batchall')}}" class="nav-link">批量脚本检测记录</a>
+          </li>
+          <!-- <li class="nav-item"><a href="run.html" class="nav-link">脚本运行</a></li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('scriptshow')}}" class="nav-link">脚本展示</a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <select class="select-name" name="tableName" id="selectName"></select><button class="open-detection" id="openDetection">开启检测</button>
+      </div>
+
+      <div class="table-box">
+        <table>
+          <thead>
+            <tr>
+              <th>脚本名称</th><th>轮次名称</th><th>队伍名称</th><th>漏洞描述</th><th>ip</th><th>靶机是否访问</th><th>靶机主页是否404</th><th>漏洞是否存在</th><th>漏洞主页是否404</th>
+            </tr>
+          </thead>
+          <tbody id="singleBody">
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <script>
+      $(function () {
+        fetchUserData();
+        function fetchUserData() {
+          $.ajax({
+            url: baseurl + "/verify/matchnames",
+            method: "GET",
+            headers: {
+              Authorization: "Basic " + sessionStorage.getItem('token'),
+            },
+            success: function (data) {
+              let htmlCont = "";
+              $.each(data.data, function (key, val) {
+                htmlCont += "<option value='" + val + "'>" + val + "</option>";
+              });
+
+              $("#selectName").html(htmlCont);
+            },
+            error: function (xhr, status, error) {
+              console.error("请求失败:", error);
+            },
+          });
+        }
+
+        $("#openDetection").click(function(){
+          var selectedOption = $('#selectName').find('option:selected').val();
+          getSingleData(selectedOption);
+        })
+        
+
+        function getSingleData(match_name) {
+          $.ajax({
+            url: baseurl + "/web/start/all",
+            method: "post",
+            headers: {
+              Authorization: "Basic " + sessionStorage.getItem('token'),
+            },
+            dataType: "json",
+            contentType: "application/json; charset=UTF-8",
+            data: JSON.stringify({ match_name: match_name }),
+            success: function (data) {
+              let htmlCont = "";
+              $.each(data.data, function (key, val) {
+                htmlCont += "<tr><td>" + val.script_name + "</td><td>" + val.match_name + "</td><td>" + val.team_name + "</td><td>" + val.description + "</td><td>" + val.ip + "</td><td>" + (val.is_alive === 0 ? '否':'是') + "</td><td>" + (val.is_index_404 === 0 ? '否':'是')  + "</td><td>" + (val.is_vuln === 0 ? '否':'是')  + "</td><td>" + (val.is_vuln_404 === 0 ? '否':'是')  + "</td></tr>";
+              })
+              $("#singleBody").html(htmlCont);
+            },
+            error: function (xhr, status, error) {
+              console.error("请求失败:", error);
+            },
+          });
+        }
+      });
+    </script>
+    <script></script>
+  </body>
+</html>

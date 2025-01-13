@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>脚本运行</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-box">
+        <ul class="nav">
+          <li class="nav-item">
+            <a href="{{ url_for('iplist')}}" class="nav-link" aria-current="page"
+              >ip列表</a
+            >
+          </li>
+          <!-- <li class="nav-item">
+            <a href="run.html" class="nav-link">脚本运行</a>
+          </li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('open_detection')}}" class="nav-link">开启所有检测</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('single')}}" class="nav-link">单个脚本检测记录</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('batchall')}}" class="nav-link">批量脚本检测记录</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('scriptshow')}}" class="nav-link active">脚本展示</a>
+          </li>
+        </ul>
+      </div>
+      <div class="main-box">
+        <div class="main-left">
+          <div class="script-form">
+            <div class="label-item">
+              <span>脚本名称：</span
+              ><input type="text" id="scriptNameValue" name="script_name" />
+            </div>
+            <form id="myForm">
+              <div class="add-script-box" id="scriptBoxAll"></div>
+              <div class="add-script-box-button">
+                <button id="addButton">新增</button>
+                <div class="submit-script-box">
+                  <input type="submit" value="提交脚本" />
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="main-right" id="scriptContent">
+          <!-- <div class="run-box">
+            <div><span>脚本名称：</span><strong id="scriptName"  data-id=""></strong></div>
+            <div><span>漏洞数量：</span><strong id="scriptNum"></strong></div>
+          </div>
+          <div class="script-content"></div> -->
+        </div>
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <script>
+      $(function () {
+        // 新增内容
+        $("#addButton").click(function () {
+          let htmlItem = `<div class="script-item">
+                  <div class="label-item"><span>名称：</span><input type="number" placeholder="请输入整数" min="1" name="serial_num"></div>
+                  <div class="label-item"><span>描述：</span><textarea name="description"></textarea></div>
+                  <div style="text-align: right;"><a href="javascript:;">删除</a></div>
+                </div>`;
+
+          $("#scriptBoxAll").append(htmlItem);
+        });
+
+        // 提交数据
+        $("#myForm").on("submit", function (event) {
+          event.preventDefault(); // 阻止默认提交行为
+          var formData = $(this).serializeArray(); // 获取表单数据
+
+          // 处理表单数据成标准格式
+          let result = [];
+          for (let i = 0; i < formData.length; i += 2) {
+            const obj = {};
+            obj[formData[i].name] = Number(formData[i].value);
+            obj[formData[i + 1].name] = formData[i + 1].value;
+            result.push(obj);
+          }
+
+          if (result[result.length - 1].description !== "") {
+            addScriptName($("#scriptNameValue").val(), result);
+          }
+        });
+
+        // 添加脚本名称的请求方法
+        function addScriptName(script_name, vul_point_msg) {
+          $.ajax({
+            url: baseurl + "/verify/web/add",
+            method: "post",
+            dataType: "json",
+            contentType: "application/json; charset=UTF-8",
+            data: JSON.stringify({
+              script_name: script_name,
+              vul_point_msg: vul_point_msg,
+            }),
+            headers: {
+              Authorization: "Basic " + sessionStorage.getItem("token"),
+            },
+            success: function (data) {
+              alert("成功创建！");
+              fetchUserData();
+            },
+            error: function (xhr, status, error) {
+              console.error("请求失败:", error);
+            },
+          });
+        }
+
+        $("#scriptName").on("click", function () {
+          window.location.href =
+            "run.html?id=" + $("#scriptName").attr("data-id");
+        });
+        fetchUserData();
+        function fetchUserData() {
+          $.ajax({
+            url: baseurl + "/verify/web/list",
+            method: "GET",
+            headers: {
+              Authorization: "Basic " + sessionStorage.getItem("token"),
+            },
+            success: function (data) {
+              // $("#scriptName").text(data.script_name);
+              // $("#scriptName").attr("data-id", data.id);
+              // $("#scriptNum").html(data.scripts.length);
+              let htmlCont = "";
+              $.each(data.data, function (key, val) {
+                htmlCont += '<div class="run-box">';
+                htmlCont +=
+                  '<div><span>脚本名称：</span><a style="color:#0d6efd" href="run.html?id=' +
+                  val.id +
+                  '">' +
+                  val.script_name +
+                  "</a></div>";
+                htmlCont +=
+                  "<div><span>漏洞数量：</span><strong>" +
+                  val.scripts.length +
+                  "</strong></div>";
+                htmlCont += "</div>";
+                htmlCont += '<div class="script-content">';
+                $.each(val.scripts, function (index, item) {
+                  htmlCont += "<div>" + item.description + "</div>";
+                });
+                htmlCont += "</div>";
+              });
+              $("#scriptContent").html(htmlCont);
+            },
+            error: function (xhr, status, error) {
+              console.error("请求失败:", error);
+            },
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

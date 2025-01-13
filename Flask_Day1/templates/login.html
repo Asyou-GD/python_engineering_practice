@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简单登录界面</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}" />
+    <style>
+      body {
+        height: 100vh;
+        background: url("{{ url_for('static', filename='css/bg.jpg')}}");
+        background-size: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>登录</h2>
+      <div id="login-form">
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="用户名"
+          required
+        />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="密码"
+          required
+        />
+        <div class="code-box">
+          <input
+            type="text"
+            id="code"
+            name="code"
+            placeholder="验证码"
+            required
+          /><b id="codeNumber" data-id=""></b>
+        </div>
+
+        <input type="submit" value="登录" id="submit" />
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/base64.js')}}"></script>
+    <script>
+      $(function () {
+        getCodeImg();
+
+        $("#codeNumber").click(function () {
+          getCodeImg();
+        });
+        function getCodeImg() {
+          $.ajax({
+            url: baseurl + "/imagecode",
+            method: "GET",
+            success: function (data) {
+              $("#codeNumber").text(data.image_code);
+              $("#codeNumber").attr("data-id", data.uid);
+            },
+            error: function (xhr, status, error) {
+              console.error("请求失败:", error);
+            },
+          });
+        }
+
+        $("#submit").click(function () {
+          let username = $("#username").val();
+          let password = $("#password").val();
+          let image_code = $("#code").val();
+          let uid = $("#codeNumber").attr("data-id");
+          // 简单验证
+          if (username === "" || password === "") {
+            alert("用户名和密码不能为空。");
+          } else {
+            login(username, password, image_code, uid);
+            // alert("登录成功！");
+            // 这里可以添加跳转到另一个页面的代码，例如：
+          }
+        });
+      });
+
+      // 登录函数
+      function login(username, password, code, uid) {
+        return $.ajax({
+          url: baseurl + "/token",
+          method: "post",
+          dataType: "json",
+          contentType: "application/json; charset=UTF-8",
+          data: JSON.stringify({
+            username: username,
+            password: password,
+            image_code: code,
+            uid: uid,
+          }),
+          success: function (data) {
+            alert("登录成功！");
+           let baseToken = $.base64.encode(data.token + ':' + '')
+           console.log(baseToken)
+            sessionStorage.setItem('token',baseToken)
+            window.location.href = 'scriptshow.html';
+          },
+          error: function (xhr, status, error) {
+            console.error("请求失败:", error);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ip列表</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-box">
+        <ul class="nav">
+          <li class="nav-item">
+            <a href="{{ url_for('iplist')}}" class="nav-link active" aria-current="page"
+              >ip列表</a
+            >
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('open_detection')}}" class="nav-link">开启所有检测</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('single')}}" class="nav-link">单个脚本检测记录</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('batchall')}}" class="nav-link">批量脚本检测记录</a>
+          </li>
+          <!-- <li class="nav-item"><a href="run.html" class="nav-link">脚本运行</a></li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('scriptshow')}}" class="nav-link">脚本展示</a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary" id="importBtn">
+          导入ip
+        </button>
+      </div>
+
+      <!-- <div class="table-box">
+        <table>
+          <thead>
+            <th>测试名称</th>
+            <th>操作</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td>名称1</td>
+              <td><span>删除</span></td>
+            </tr>
+            <tr>
+              <td>名称1</td>
+              <td><span>删除</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div> -->
+
+      <div
+        class="modal"
+        id="modalBox"
+        style="margin-left: -250px; margin-top: -200px"
+      >
+        <div class="modal-item">
+          <span>名称：</span
+          ><input id="uploadName" type="text" placeholder="请输入名称" />
+        </div>
+        <div class="modal-item">
+          <span>附件：</span
+          ><input
+            id="file"
+            onChange="handleFileChange(event)"
+            type="file"
+            name="file"
+            multiple="multiple"
+            placeholder="点击上传文件"
+          />
+        </div>
+        <div class="btn-box">
+          <button class="btn" id="uploadSubmit">确定</button
+          ><button class="btn btn-cancel" id="cancelBtn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/main.js')}}"></script>
+    <script>
+      var uplaodForm = new FormData();
+      $(function () {
+        $("#importBtn").click(function () {
+          $("#modalBox").css("display", "block");
+          $("#cancelBtn").click(function () {
+            $("#modalBox").css("display", "none");
+          });
+        });
+        //提交数据
+        $("#uploadSubmit").click(function () {
+          let match_name = $("#uploadName").val();
+          uplaodForm.append("match_name", match_name);
+          // debugger;
+          console.log(uplaodForm);
+          uplaodFile(uplaodForm);
+        });
+      });
+
+      //   上传
+      function handleFileChange(e) {
+        const input = e.target;
+        const files = e.target.files;
+        const formData = {};
+        if (files && files[0]) {
+          const file = files[0];
+          formData.file = file;
+          uplaodForm.append("file", file);
+        }
+      }
+
+      // 上传方法
+
+      function uplaodFile(uplaodForm) {
+        $.ajax({
+          url: baseurl + "/ip/upload",
+          method: "post",
+          headers: {
+            Authorization: "Basic " + sessionStorage.getItem("token"),
+          },
+          processData: false, //设置ajax向后台提交参数之前，是否把参数统一转换成字符串
+          contentType: false, //设置ajax向后台提交参数之前，是否把所有的参数统一按urlencoded编码
+          data: uplaodForm,
+          success: function (data) {
+            alert("上传成功！");
+            $("#modalBox").css("display", "none");
+          },
+          error: function (xhr, status, error) {
+            console.error("请求失败:", error);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

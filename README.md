@@ -3,4 +3,4 @@
 https://www.yuque.com/u49884227/ml1lkd/tpvvt8ulkedrxz1e
 
 # 个人博客
-loverlss.xyz
+[拖延症患者~~](http://www.loverlss.xyz/gd/)

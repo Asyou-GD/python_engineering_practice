@@ -481,3 +481,30 @@ input::placeholder {
   border-radius: 5px;
   margin-left: 10px;
 }
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.button-group input[type="submit"],
+.button-group input[type="button"] {
+  flex: 1;
+  width: 45%;
+  margin: 0;
+}
+
+/* 确保两个按钮样式一致 */
+#register {
+  background-color: #4CAF50;  /* 与登录按钮相同的颜色 */
+  color: white;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#register:hover {
+  background-color: #45a049;  /* 与登录按钮hover状态相同的颜色 */
+}

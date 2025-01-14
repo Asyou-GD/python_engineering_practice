@@ -26,4 +26,4 @@ class UserForm(BaseForm):
     uid = StringField('uid', validators=[DataRequired('不允许为空')])
 
 class DetectionForm(BaseForm):
-    pass
+    test_id = StringField('test_id', validators = [DataRequired('不允许为空')])

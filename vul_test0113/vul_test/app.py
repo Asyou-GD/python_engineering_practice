@@ -16,12 +16,12 @@ import json, html
 from flask_caching import Cache
 from libs.token import generate_token
 from libs.token_auth import auth
-from flask_cors import CORS
+
 
 
 app = Flask(__name__)
 app.config.from_object(config['development'])
-CORS(app)
+
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 db.init_app(app)
 cache.init_app(app)
@@ -158,6 +158,7 @@ def upload_ip():
                 'match_name':match_name,
                 'user_id':g.uid
             }
+            print(row)
             if VulIP.add(data):
                 success += 1
             else:
@@ -409,4 +410,4 @@ def web_delete(id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=80)
+    app.run(host='0.0.0.0', debug=True, port=8080)

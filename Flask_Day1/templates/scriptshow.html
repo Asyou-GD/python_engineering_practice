@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>脚本运行</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}" />
+    <style>
+      .logout-btn {
+          margin-top: 15px;
+          padding: 8px 20px;
+          background-color: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+      }
+      
+      .logout-btn:hover {
+          background-color: #c82333;
+      }
+      </style>
   </head>
   <body>
     <div class="container">
@@ -15,9 +31,9 @@
               >ip列表</a
             >
           </li>
-          <!-- <li class="nav-item">
-            <a href="run.html" class="nav-link">脚本运行</a>
-          </li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('run')}}" class="nav-link">脚本运行</a>
+          </li>
           <li class="nav-item">
             <a href="{{ url_for('open_detection')}}" class="nav-link">开启所有检测</a>
           </li>
@@ -49,6 +65,15 @@
               </div>
             </form>
           </div>
+        <!-- 用户信息卡片 -->
+        <div class="user-card" style="margin-top: 100px;">
+          <div class="user-avatar">
+            <img src="{{ config.image }}" alt="user avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #eee;">
+          </div>
+          <h6 class="user-name">{{ config.user_name }}</h6>
+          <p class="user-description">--重度拖延症者--</p>
+          <button class="logout-btn" onclick="window.location.href='/exit?user_name={{ config.user_name }}'">退出登录</button>
+        </div>
         </div>
         <div class="main-right" id="scriptContent">
           <!-- <div class="run-box">
@@ -105,7 +130,7 @@
               vul_point_msg: vul_point_msg,
             }),
             headers: {
-              Authorization: "Basic " + sessionStorage.getItem("token"),
+              Authorization: "Token " + sessionStorage.getItem("token"),
             },
             success: function (data) {
               alert("成功创建！");
@@ -127,7 +152,7 @@
             url: baseurl + "/verify/web/list",
             method: "GET",
             headers: {
-              Authorization: "Basic " + sessionStorage.getItem("token"),
+              Authorization: "Token " + sessionStorage.getItem("token"),
             },
             success: function (data) {
               // $("#scriptName").text(data.script_name);
@@ -162,5 +187,35 @@
         }
       });
     </script>
+    <style>
+      .user-card {
+        width: 200px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .user-avatar img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #eee;
+      }
+
+      .user-name {
+        margin: 10px 0;
+        font-weight: bold;
+      }
+
+      .user-description {
+        color: #666;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+    </style>
   </body>
 </html>

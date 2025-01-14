@@ -24,7 +24,8 @@
           <li class="nav-item">
             <a href="{{ url_for('batchall')}}" class="nav-link">批量脚本检测记录</a>
           </li>
-          <!-- <li class="nav-item"><a href="run.html" class="nav-link">脚本运行</a></li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('run')}}" class="nav-link">脚本运行</a></li>
           <li class="nav-item">
             <a href="{{ url_for('scriptshow')}}" class="nav-link">脚本展示</a>
           </li>
@@ -122,7 +123,7 @@
           url: baseurl + "/ip/upload",
           method: "post",
           headers: {
-            Authorization: "Basic " + sessionStorage.getItem("token"),
+            Authorization: "Token " + sessionStorage.getItem("token"),
           },
           processData: false, //设置ajax向后台提交参数之前，是否把参数统一转换成字符串
           contentType: false, //设置ajax向后台提交参数之前，是否把所有的参数统一按urlencoded编码

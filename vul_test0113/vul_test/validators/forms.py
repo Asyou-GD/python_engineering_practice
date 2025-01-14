@@ -6,7 +6,6 @@
 from wtforms import Form
 from wtforms.validators import DataRequired,Regexp
 from wtforms import StringField, IntegerField
-from flask_wtf import FlaskForm
 from validators.Base import BaseForm
 
 class SingleDetailForm(BaseForm):
@@ -21,10 +20,10 @@ class StartScriptForm(BaseForm):
     match_name = StringField('match_name',validators = [DataRequired('不允许为空')])
 
 class UserForm(BaseForm):
-    username = StringField('username', validators = [DataRequired('不允许为空')])
-    password = StringField('password', validators = [DataRequired('不允许为空')])
-    image_code = StringField('image_code', validators = [DataRequired('不允许为空')])
-    uid = StringField('uid', validators = [DataRequired('不允许为空')])
+    username = StringField('username', validators= [DataRequired('不允许为空')])
+    password = StringField('password', validators=[DataRequired('不允许为空')])
+    image_code = StringField('image_code', validators=[DataRequired('不允许为空')])
+    uid = StringField('uid', validators=[DataRequired('不允许为空')])
 
 class DetectionForm(BaseForm):
     test_id = StringField('test_id', validators = [DataRequired('不允许为空')])

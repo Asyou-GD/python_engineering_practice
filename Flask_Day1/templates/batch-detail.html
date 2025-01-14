@@ -55,7 +55,7 @@
             url: baseurl + "/detection/all/detail",
             method: "post",
             headers: {
-              Authorization: "Basic " + sessionStorage.getItem('token'),
+              Authorization: "Token " + sessionStorage.getItem('token'),
             },
             dataType: "json",
             contentType: "application/json; charset=UTF-8",

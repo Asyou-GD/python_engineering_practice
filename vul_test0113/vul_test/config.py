@@ -9,7 +9,7 @@ class BaseConfig:
     EXTS = ['xlsx']
 
 class DevelopmentConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://vulver:vulver@localhost/vulver'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:GD0818109@localhost/use_test'
 
 class TestingConfig(BaseConfig):
     TESTING = True

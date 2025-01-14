@@ -15,14 +15,15 @@
               >ip列表</a
             >
           </li>
-          <li class="nav-item"><a href="open-detection.html" class="nav-link">开启所有检测</a></li>
+          <li class="nav-item"><a href="{{ url_for('open_detection')}}" class="nav-link">开启所有检测</a></li>
           <li class="nav-item">
             <a href="{{ url_for('single')}}" class="nav-link">单个脚本检测记录</a>
           </li>
           <li class="nav-item">
             <a href="{{ url_for('batchall')}}" class="nav-link active">批量脚本检测记录</a>
           </li>
-          <!-- <li class="nav-item"><a href="run.html" class="nav-link">脚本运行</a></li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('run')}}" class="nav-link">脚本运行</a></li>
           <li class="nav-item">
             <a href="{{ url_for('scriptshow')}}" class="nav-link">脚本展示</a>
           </li>
@@ -51,7 +52,7 @@
             url: baseurl + "/detection/all/list",
             method: "GET",
             headers: {
-              Authorization: "Basic " + sessionStorage.getItem('token'),
+              Authorization: "Token " + sessionStorage.getItem('token'),
             },
             success: function (data) {
               let htmlCont = "";

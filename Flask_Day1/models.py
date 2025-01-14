@@ -82,7 +82,6 @@ class VulUser(Base):
             vuluser.auth = vul_user.get('auth')
             db.session.add(vuluser)
 
-
     @staticmethod
     def verify(username, password):
         user = VulUser.query.filter_by(username=username).first()  # type:VulUser
@@ -353,8 +352,8 @@ class VulIP(Base):
     def add(vul_ip: dict):
         with db.auto_commit():
             vulIp = VulIP()
-            vulIp.team_name = vul_ip.get('team_name')
-            vulIp.script_name = vul_ip.get('script_name')
+            vulIp.team_name = vul_ip['team_name']
+            vulIp.script_name = vul_ip['script_name']
             vulIp.serial_num = vul_ip.get('serial_num')
             vulIp.ip = vul_ip.get('ip')
             vulIp.port = vul_ip.get('port')

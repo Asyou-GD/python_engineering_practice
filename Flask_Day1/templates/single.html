@@ -11,7 +11,7 @@
       <div class="nav-box">
         <ul class="nav">
           <li class="nav-item">
-            <a href="{{ url_for('static', filename='iplist.html')}}" class="nav-link" aria-current="page"
+            <a href="{{ url_for('iplist')}}" class="nav-link" aria-current="page"
               >ip列表</a
             >
           </li>
@@ -22,7 +22,9 @@
           <li class="nav-item">
             <a href="{{ url_for('batchall')}}" class="nav-link">批量脚本检测记录</a>
           </li>
-          <!-- <li class="nav-item"><a href="run.html" class="nav-link">脚本运行</a></li> -->
+          <li class="nav-item">
+            <a href="{{ url_for('run')}}" class="nav-link">脚本运行</a>
+          </li>
           <li class="nav-item">
             <a href="{{ url_for('scriptshow')}}" class="nav-link">脚本展示</a>
           </li>
@@ -51,7 +53,7 @@
             url: baseurl + "/detection/single/list",
             method: "GET",
             headers: {
-              Authorization: "Basic " + sessionStorage.getItem('token'),
+              Authorization: "Token " + sessionStorage.getItem('token'),
             },
             success: function (data) {
               let htmlCont = "";

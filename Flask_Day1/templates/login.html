@@ -8,7 +8,7 @@
     <style>
       body {
         height: 100vh;
-        background: url("{{ url_for('static', filename='css/bg.jpg')}}");
+        background: url("{{ url_for('static', filename='image/back.png')}}");
         background-size: cover;
       }
     </style>
@@ -41,7 +41,10 @@
           /><b id="codeNumber" data-id=""></b>
         </div>
 
-        <input type="submit" value="登录" id="submit" />
+        <div class="button-group">
+          <input type="submit" value="登录" id="submit" />
+          <input type="button" value="注册" id="register" />
+        </div>
       </div>
     </div>
 
@@ -83,6 +86,43 @@
             // 这里可以添加跳转到另一个页面的代码，例如：
           }
         });
+
+        // 添加注册按钮的点击事件处理
+        $("#register").click(function () {
+          let username = $("#username").val();
+          let password = $("#password").val();
+          let image_code = $("#code").val();
+          let uid = $("#codeNumber").attr("data-id");
+
+          // 简单验证
+          if (username === "" || password === "") {
+            alert("用户名和密码不能为空。");
+            return;
+          }
+
+          // 发送注册请求
+          $.ajax({
+            url: baseurl + "/register",
+            method: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=UTF-8",
+            data: JSON.stringify({
+              username: username,
+              password: password,
+              image_code: image_code,
+              uid: uid
+            }),
+            success: function(data) {
+              alert("注册成功！");
+              // 可以选择直接登录或者留在当前页面
+              window.location.reload();
+            },
+            error: function(xhr, status, error) {
+              console.error("注册失败:", error);
+              alert("注册失败：" + error);
+            }
+          });
+        });
       });
 
       // 登录函数
@@ -100,10 +140,12 @@
           }),
           success: function (data) {
             alert("登录成功！");
-           let baseToken = $.base64.encode(data.token + ':' + '')
-           console.log(baseToken)
-            sessionStorage.setItem('token',baseToken)
-            window.location.href = 'scriptshow.html';
+            let baseToken = data.token
+            console.log(baseToken)
+          // 将 token 存储在 sessionStorage 中
+          sessionStorage.setItem('token', baseToken);
+          // 直接跳转到 scriptshow 页面
+          window.location.href = '/scriptshow?token=' + baseToken;
           },
           error: function (xhr, status, error) {
             console.error("请求失败:", error);
